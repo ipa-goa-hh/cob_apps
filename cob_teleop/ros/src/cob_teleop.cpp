@@ -370,7 +370,7 @@ TeleopCOB::TeleopCOB()
 	// add all found joint names to joint_names_vector, which is used to pass values to the state aggregator
 	for(std::map<std::string,joint_module>::iterator module_it=joint_modules_.begin();module_it!=joint_modules_.end();++module_it){
 		std::vector<std::string> names = (module_it->second).joint_names;
-		for(int i=0; i<names.size();i++){
+		for(unsigned int i=0; i<names.size();i++){
 			joint_names_.push_back(names[i]);
 			combined_joints_.joint_names_.push_back(names[i]); // puch joit name to combined collection
 			combined_joints_.joint_init_values_.push_back(0.0); // be sure that a init value is related to the joint name
@@ -446,11 +446,11 @@ void TeleopCOB::setInitValues()
 {
 
 	// loop trough all the joints in the combined collection
-	for(int i=0; i<combined_joints_.joint_init_values_.size();i++){
+	for(unsigned int i=0; i<combined_joints_.joint_init_values_.size();i++){
 		//loop trough all the joints in module containing joint settings,
 		//and try to find the one with a name matching the currently browsed joint
 		//in the combined collection
-		for(int j=0; j<combined_joints_.module_ref_[i]->joint_names.size();j++){
+		for(unsigned int j=0; j<combined_joints_.module_ref_[i]->joint_names.size();j++){
 			// if the matching joint is found, assign value to pos command and stop looking for this name
 			if(combined_joints_.module_ref_[i]->joint_names[j].compare(combined_joints_.joint_names_[i])==0){
 				combined_joints_.module_ref_[i]->req_joint_pos_[j] = combined_joints_.joint_init_values_[i];
@@ -477,9 +477,9 @@ void TeleopCOB::joint_states_cb(const sensor_msgs::JointState::ConstPtr &joint_s
 	if (!got_init_values_ && stopped_ && joy_active_)
 	{
 		ROS_DEBUG("joint_states_cb: getting init values");
-		for (int j = 0; j<joint_names_.size(); j++ )
+		for (unsigned int j = 0; j<joint_names_.size(); j++ )
 		{
-			for (int i = 0; i<joint_states_msg->name.size(); i++ )
+			for (unsigned int i = 0; i<joint_states_msg->name.size(); i++ )
 			{
 				ROS_DEBUG("joint names in init: %s should match %s",joint_names_[j].c_str(),joint_states_msg->name[i].c_str());
 				if (joint_states_msg->name[i] == joint_names_[j])
@@ -808,17 +808,17 @@ void TeleopCOB::joy_cb(const sensor_msgs::Joy::ConstPtr &joy_msg)
 	//================base================
 	if(has_base_module_ && base_module_.req_vel_.size()==3)
 	{
-		if(axis_vx_>=0 && axis_vx_<(int)joy_msg->get_axes_size())
+		if(axis_vx_>=0 && axis_vx_<(int)joy_msg->axes.size())
 			base_module_.req_vel_[0] = joy_msg->axes[axis_vx_]*base_module_.max_vel_[0]*run_factor_;
 		else
 			base_module_.req_vel_[0] = 0.0;
 
-		if(axis_vy_>=0 && axis_vy_<(int)joy_msg->get_axes_size())
+		if(axis_vy_>=0 && axis_vy_<(int)joy_msg->axes.size())
 			base_module_.req_vel_[1] = joy_msg->axes[axis_vy_]*base_module_.max_vel_[1]*run_factor_;//req_vy_ = joy_msg->axes[axis_vy_]*max_vy_*run_factor_;
 		else
 			base_module_.req_vel_[1] = 0.0; //req_vy_ = 0.0;
 
-		if(axis_vth_>=0 && axis_vth_<(int)joy_msg->get_axes_size())
+		if(axis_vth_>=0 && axis_vth_<(int)joy_msg->axes.size())
 			base_module_.req_vel_[2] = joy_msg->axes[axis_vth_]*base_module_.max_vel_[2]*run_factor_;//req_vth_ = joy_msg->axes[axis_vth_]*max_vth_*run_factor_;
 		else
 			base_module_.req_vel_[2] = 0.0; //req_vth_ = 0.0;
@@ -838,7 +838,7 @@ void TeleopCOB::update()
 			// stop components: send zero for one time
 			for(std::map<std::string,joint_module>::iterator module_it=joint_modules_.begin();module_it!=joint_modules_.end();++module_it)
 			{
-				for(int i=0; i<module_it->second.req_joint_vel_.size();i++)
+				for(unsigned int i=0; i<module_it->second.req_joint_vel_.size();i++)
 				{
 					module_it->second.req_joint_vel_[i] = 0.0;
 				}
@@ -846,7 +846,7 @@ void TeleopCOB::update()
 
 			if(has_base_module_)
 			{
-				for(int i=0; i<3; i++){
+				for(unsigned int i=0; i<3; i++){
 					base_module_.req_vel_[i]=0;
 					base_module_.vel_old_[i]=0;
 				}
@@ -898,7 +898,7 @@ void TeleopCOB::update_joint_modules()
 		brics_actuator::JointValue joint_vel;
 		joint_vel.timeStamp = traj.header.stamp;
 		joint_vel.unit = "rad";
-		for( int i = 0; i<jointModule->joint_names.size();i++)
+		for(unsigned int i = 0; i<jointModule->joint_names.size();i++)
 		{
 			// as trajectory message
 			traj.joint_names.push_back(jointModule->joint_names[i]);
